@@ -1,0 +1,149 @@
+#compdef netexec nxc
+
+# -------------------------------------------------------------------------
+# NetExec (NXC) Ultimate Zsh Completion
+# Version: 3.0 (Magical Edition)
+# Supports: SMB, LDAP, MSSQL, SSH, WINRM, WMI, FTP, VNC, SNMP, REDIS
+# -------------------------------------------------------------------------
+
+_netexec() {
+    local context state line
+    typeset -A opt_args
+
+    # Main Protocols
+    local -a protocols
+    protocols=(smb ldap mssql ssh winrm wmi ftp vnc snmp redis)
+
+    _arguments -C \
+        '--t[Number of threads (default: 100)]' \
+        '--timeout[Max timeout for each target (default: 10)]' \
+        '--jitter[Randomize interval between requests (min max)]' \
+        '--delay[Delay between each target]' \
+        '--no-progress[Do not display progress bar]' \
+        '--id[Database session ID to use]' \
+        '--color[Terminal color output]:color:(always never auto)' \
+        '--logger-debug[Enable debug logging]' \
+        '1:Protocol:($protocols)' \
+        '*:: :->args'
+
+    case $words[1] in
+        smb)
+            _arguments \
+                '--u[Username(s) or file]:user:_users' \
+                '--p[Password(s) or file]' \
+                '--H[NTLM hash(es) or file]' \
+                '--aesKey[AES 128/256 key for Kerberos]' \
+                '-d[Domain name]' \
+                '--local-auth[Authenticate locally (SAM)]' \
+                '--shares[Enumerate shares and permissions]' \
+                '--list-contents[List folder contents (e.g., C$)]:share:' \
+                '--depth[Traversal depth for listing]' \
+                '--users[Enumerate Domain users]' \
+                '--groups[Enumerate Domain groups]' \
+                '--computers[Enumerate Domain computers]' \
+                '--pass-pol[Check Domain password policy]' \
+                '--rid-brute[Bruteforce RIDs for users/groups]' \
+                '--sam[Dump SAM hashes]' \
+                '--lsa[Dump LSA secrets]' \
+                '--ntds[Dump NTDS.dit (drsuapi, vss, or ntdsutil)]' \
+                '--shadow-copy[Dump hashes via volume shadow copy]' \
+                '--disks[Enumerate logical disks]' \
+                '--sessions[Enumerate active sessions]' \
+                '--loggedon-users[Enumerate logged-on users]' \
+                '--exec-method[Method: smbexec, wmiexec, mmcexec, atexec]' \
+                '--x[Execute a system command]' \
+                '--X[Execute a PowerShell command]' \
+                '--put[Upload a local file]:local_file:_files' \
+                '--get[Download a remote file]:remote_path:' \
+                '--spider[Search for sensitive files]:share:' \
+                '--spider-depth[Max depth for spidering]' \
+                '--M[Load Module]:module:_nxc_smb_modules' \
+                '--pwn3d[Only show pwned targets]'
+            ;;
+        ldap)
+            _arguments \
+                '--u[Username]' '--p[Password]' '--H[NTLM hash]' \
+                '--users[Enumerate all Domain users]' \
+                '--groups[Enumerate all Domain groups]' \
+                '--asreproast[AS-REP Roasting]:output_file:_files' \
+                '--kerberoasting[Kerberoasting]:output_file:_files' \
+                '--bloodhound[Collect for BloodHound]:zip_file:' \
+                '--collection[BloodHound method]:(All Default Group LocalAdmin RDP)' \
+                '--trusted-for-delegation[Find accounts for delegation]' \
+                '--unconstrained[Find unconstrained delegation]' \
+                '--constrained[Find constrained delegation]' \
+                '--gmsa[Dump GMSA passwords]' \
+                '--pso[Enumerate Password Settings Objects]' \
+                '--m[Load Module]:module:_nxc_ldap_modules'
+            ;;
+        mssql)
+            _arguments \
+                '--u[Username]' '--p[Password]' '--H[NTLM hash]' \
+                '--port[MSSQL Port (default: 1433)]' \
+                '--q[Run a raw SQL query]' \
+                '--x[Execute command via xp_cmdshell]' \
+                '--X[Execute PowerShell via xp_cmdshell]' \
+                '--databases[Enumerate databases]' \
+                '--tables[Enumerate tables]' \
+                '--columns[Enumerate columns]' \
+                '--local-auth[Local MSSQL authentication]' \
+                '--m[Load Module]:module:_nxc_mssql_modules'
+            ;;
+        ssh)
+            _arguments \
+                '--u[Username]' '--p[Password]' \
+                '--key-file[Private key file]:file:_files' \
+                '--port[SSH port (default: 22)]' \
+                '--x[Execute command]' \
+                '--sudo-check[Check sudo privileges]' \
+                '--shell[Spawn interactive shell]'
+            ;;
+        winrm|wmi)
+            _arguments \
+                '--u[Username]' '--p[Password]' '--H[NTLM hash]' \
+                '--x[Execute system command]' \
+                '--X[Execute PowerShell command]' \
+                '--laps[Retrieve LAPS passwords]' \
+                '--local-auth[Local authentication]' \
+                '--m[Module to load]:module'
+            ;;
+    esac
+}
+
+# --- Detailed Modules for different protocols ---
+
+_nxc_smb_modules() {
+    local -a smb_mods
+    smb_mods=(
+        'lsassy:Dump LSASS via multiple methods'
+        'mimikatz:Run Mimikatz'
+        'nanodump:Dump LSASS stealthily'
+        'petitpotam:Trigger MS-EFSR coercion'
+        'nopac:Check for NoPac (CVE-2021-42278)'
+        'get-gpp:Extract GPP passwords'
+        'oxidresolver:Enumerate network interfaces'
+        'sccm:Identify SCCM/MECM servers'
+        'shadowcoerce:Trigger MS-FSRVP coercion'
+        'subnets:Discover subnets via routing table'
+    )
+    _describe -t modules 'SMB Modules' smb_mods
+}
+
+_nxc_ldap_modules() {
+    local -a ldap_mods
+    ldap_mods=(
+        'adcs:Enumerate AD Certificate Services'
+        'dacl:Enumerate interesting DACLs'
+        'ldap-checker:Check for LDAP signing'
+        'group-mem:Check membership of specific group'
+    )
+    _describe -t modules 'LDAP Modules' ldap_mods
+}
+
+_nxc_mssql_modules() {
+    local -a mssql_mods
+    mssql_mods=('slurp:Enumerate and dump sensitive data' 'execute_as:Check EXECUTE AS privileges')
+    _describe -t modules 'MSSQL Modules' mssql_mods
+}
+
+_netexec "$@"
