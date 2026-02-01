@@ -43,7 +43,10 @@ Unlike the traditional NetExec setup, this build does **not** require a Python e
 ### Kali Linux (Recommended)
 
 ```bash
-sudo dpkg -i netexec-standalone.deb
+wget https://github.com/pashamasr01287654800/netexec_0.0.0_amd64/releases/download/0.0.0/netexec_0.0.0_amd64.deb
+```
+```bash
+sudo dpkg -i netexec_0.0.0_amd64.deb
 ```
 
 ⚠ Notes
