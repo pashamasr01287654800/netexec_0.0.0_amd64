@@ -2,6 +2,10 @@
 
 # NetExec (NXC) – Standalone Binary Edition
 
+<p align="center">
+  <img src="https://www.kali.org/tools/netexec/images/netexec-logo.svg" width="200">
+</p>
+
 This repository provides a **fully standalone distribution of the well-known NetExec (NXC) framework**, packaged as a **single self-contained binary**, built for stability, portability, and operational efficiency during red team engagements.
 
 Unlike the traditional NetExec setup, this build does **not** require a Python environment or external dependencies.
